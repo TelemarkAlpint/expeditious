@@ -1,0 +1,4 @@
+music_src_dir: /Volumes/groupswww/telemark/media/songs/
+music_dest_dir: "/Users/tarjei/Dropbox/NTNUI Telemark-Alpint Treningsmusikk/Spillelister/"
+silence_file: /Volumes/groupswww/telemark/media/songs/silence.mp3
+song_data_url: http://58.telemarkalpint.appspot.com/musikk/top/list
