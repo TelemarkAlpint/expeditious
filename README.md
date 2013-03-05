@@ -11,3 +11,8 @@ Expeditious is a collection of tools for working with songs.
   to a remote server.
 
 All together these explorers are what keeps our music running on monday evenings.
+
+Dependencies
+------------
+
+- Sox
