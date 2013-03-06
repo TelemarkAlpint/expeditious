@@ -15,4 +15,8 @@ All together these explorers are what keeps our music running on monday evenings
 Dependencies
 ------------
 
+All:
 - Sox
+
+Amundsen:
+- Mutagen
