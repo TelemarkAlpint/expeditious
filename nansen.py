@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 __version_info__ = (0, 1, 0)
@@ -6,7 +7,11 @@ __license__ = 'GPL'
 
 from contextlib import closing
 from datetime import datetime
-from urllib2 import urlopen
+try:
+    from urllib2 import urlopen
+except:
+    #Python3
+    from urllib.request import urlopen
 from shutil import copy2
 from os import path
 import logging.config
@@ -46,7 +51,7 @@ def run():
 def get_filenames():
     logger.info('Henter sanger...')
     with closing(urlopen(config['song_data_url'])) as json_data:
-        song_list = json.load(json_data)
+        song_list = json.loads(json_data.read().decode('utf-8'))
     path_list = [config['music_src_dir'] + song['filename'] + '.mp3' for song in song_list]
     logger.info('%d sanger funnet.' % len(path_list))
     return path_list
@@ -56,15 +61,18 @@ def merge_files(files):
     target = get_new_filename()
     command = ['sox']
     for song_file in files:
-        command.append(song_file)
+        if sys.version_info > (3, 0, 0):
+            command.append(song_file)
+        else:
+            # Python2, wtf?
+            command.append(song_file.encode('latin-1'))
         command.append(config['silence_file'])
     command.append(target)
+    command.append('--show-progress')
     try:
         subprocess.check_call(command)
     except Exception as e:
-        logger.info('Klarte ikke slå sammen filer.')
-        logger.info('Kommando: %s', command)
-        logger.info('Feilmelding: %s', e)
+        logger.exception('Klarte ikke slå sammen filer. Kommando: %s', command)
         sys.exit(1)
     return target
 
