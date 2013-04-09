@@ -1,7 +1,7 @@
 version: 1
 formatters:
   simple:
-    format: '%(asctime)s %(levelname)-10s %(message)s'
+    format: '%(asctime)s %(name)s %(levelname)-10s %(message)s'
 handlers:
   console:
     class: logging.StreamHandler
@@ -15,6 +15,14 @@ handlers:
     filename: log.log
 loggers:
   nansen:
+    level: DEBUG
+    handlers: [console, file]
+    propagate: no
+  monsen:
+    level: DEBUG
+    handlers: [console, file]
+    propagate: no
+  amundsen:
     level: DEBUG
     handlers: [console, file]
     propagate: no
