@@ -1,18 +1,20 @@
 version: 1
 formatters:
-  simple:
+  log_file:
     format: '%(asctime)s %(name)s %(levelname)-10s %(message)s'
+  simple:
+    format: '%(message)s'
 handlers:
   console:
     class: logging.StreamHandler
-    level: DEBUG
+    level: INFO
     formatter: simple
     stream: ext://sys.stdout
   file:
     class: logging.FileHandler
-    level: DEBUG
-    formatter: simple
-    filename: log.log
+    level: INFO
+    formatter: log_file
+    filename: /var/log/expeditious.log
 loggers:
   nansen:
     level: DEBUG
