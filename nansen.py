@@ -3,37 +3,36 @@
 
 __version_info__ = (0, 1, 0)
 __version__ = '.'.join(str(part) for part in __version_info__)
-__license__ = 'GPL'
+__license__ = 'MIT'
+
+try:
+    from urllib2 import urlopen
+except ImportError:
+    #Python3
+    from urllib.request import urlopen
 
 from contextlib import closing
 from datetime import datetime
-try:
-    from urllib2 import urlopen
-except:
-    #Python3
-    from urllib.request import urlopen
+from logging import getLogger
 from shutil import copy2
 from os import path
 import logging.config
 import subprocess
-import logging
 import json
 import yaml
 import sys
 import os
 
 config = None
-logger = None
+logger = getLogger('expeditious.nansen')
 
 def init():
     _setup_logging()
     _load_config()
 
 def _setup_logging():
-    global logger
     with open('log_conf.yaml') as log_conf:
         logging.config.dictConfig(yaml.load(log_conf))
-    logger = logging.getLogger('nansen')
 
 def _load_config():
     global config
@@ -53,7 +52,7 @@ def get_filenames():
     with closing(urlopen(config['song_data_url'])) as json_data:
         song_list = json.loads(json_data.read().decode('utf-8'))
     path_list = [config['music_src_dir'] + song['filename'] + '.mp3' for song in song_list]
-    logger.info('%d sanger funnet.' % len(path_list))
+    logger.info('%d sanger funnet.', len(path_list))
     return path_list
 
 def merge_files(files):
@@ -71,7 +70,7 @@ def merge_files(files):
     command.append('--show-progress')
     try:
         subprocess.check_call(command)
-    except Exception as e:
+    except Exception:
         logger.exception('Klarte ikke slå sammen filer. Kommando: %s', command)
         sys.exit(1)
     return target
@@ -86,12 +85,12 @@ def write_metadata(filename, files):
         config['music_src_dir'] + path.split(filename)[1] + '.json',
         config['music_src_dir'] + 'top_meta.json',
         path.splitext(filename)[0] + '.json',
-               ]
+    ]
     metadata = {
         'last_updated': datetime.now().strftime('%Y-%m-%d %H:%M'),
         'filename': os.path.split(filename)[1],
         'songs': [path.split(song)[1] for song in files],
-                }
+    }
     for target in targets:
         with open(target, 'w') as json_file:
             json.dump(metadata, json_file, indent=2)
