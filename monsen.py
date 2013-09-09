@@ -62,14 +62,17 @@ def run():
     src_file = args.input
     start_point = args.start
     duration = args.duration
-    trim_song(src_file, start_point, duration)
-    _save_stats(src_file, start_point, duration)
+    destination = trim_song(src_file, start_point, duration)
+    _save_stats(src_file, start_point, duration, destination)
 
-def _save_stats(src, start, duration):
-    stat_dict = {'src_file': src,
-                 'start_point': start,
-                 'duration': duration,
-                 }
+def _save_stats(src, start, duration, destination):
+    src_dir = path.dirname(src)
+    stat_dict = {
+        'src_file': path.basename(src),
+        'start_point': start,
+        'duration': duration,
+        'destination': path.relpath(destination, src_dir),
+    }
     stats_filename = path.splitext(src)[0] + '.yaml'
     with open(stats_filename, 'w') as stats_file:
         yaml.dump(stat_dict, stats_file, default_flow_style=False)
@@ -77,11 +80,12 @@ def _save_stats(src, start, duration):
 
 def trim_song(src, start, duration, dst=None):
     dst = dst or path.splitext(src)[0] + '_trimmed.flac'
-    cmd = ['sox', src, dst,
-           'trim', str(start), str(duration),
-           'gain', '-n', '-1',
-           'fade', 'h', '1.5', str(duration),
-           ]
+    cmd = [
+        'sox', src, dst,
+        'trim', str(start), str(duration),
+        'gain', '-n', '-1',
+        'fade', 'h', '1.5', str(duration),
+    ]
     try:
         subprocess.check_call(cmd)
     except Exception:

@@ -18,6 +18,7 @@ import logging.config
 import subprocess
 import argparse
 import yaml
+import sys
 import os
 
 config = None
@@ -87,18 +88,26 @@ def convert_file(src):
 
 def get_artist(song):
     alts = ['artist', 'Artist', 'ARTIST', 'TPE1']
-    return _get_property(song, alts)
+    artist = _get_property(song, alts)
+    if artist is None:
+        logger.error("Source file does not have any artist metadata!")
+        sys.exit(1)
+    return artist
 
 def get_title(song):
     alts = ['Title', 'title', 'TITLE', 'TIT2']
-    return _get_property(song, alts)
+    title = _get_property(song, alts)
+    if title is None:
+        logger.error("Source file does not have any title metadata!")
+        sys.exit(1)
+    return title
 
 def _get_property(song, alts):
     audio = File(song)
     for alt in alts:
         try:
             return audio[alt][0]
-        except ImportError:
+        except KeyError:
             pass
     return None
 
