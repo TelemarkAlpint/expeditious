@@ -2,98 +2,101 @@
 # *-* coding: utf-8 *-*
 
 """
-Monsen will take your audio and trim it according to your arguments.
+Monsen is a thin wrapper around sox to help with trimming audio with fade up and fade down.
+
 Supported formats is everything supported by SoX. Trimmed audio will always be FLAC,
-regardless of source file.
+regardless of source file. Run `sox` to get a list of all supported formats.
 
 Monsen will also save the trim data (source file, start point and duration), so that you can
-redo the trim later with other settings or another source file.
+redo the trim later with other settings or another source file. The data saved is:
+
+```
+_version: The data format version used. Current latest version is 2 (the one you're reading now).
+src_file: The input file that was used.
+destination: Where the output was stored.
+sox_args: The full list of arguments passed to sox.
+```
+
+The data file is stored next to the source file, and all paths are relative to the data file.
 
 Monsen will also normalize your audio to -1dB, and fade in and out. (1.5 sec half sine wave).
-
-Once mutagen or similar tools support Python3, monsen should be able to take in a file from
-arbitrary locations, and move it to a subfolder in the users music directory. (eg. folders
-based on artists).
 """
+
+from __future__ import print_function
 
 __version_info__ = (0, 2, 0)
 __version__ = '.'.join(str(part) for part in __version_info__)
 __license__ = 'MIT'
 
 from argparse import ArgumentParser
-from logging import getLogger
 from os import path
-import logging.config
+import logging
 import subprocess
 import yaml
 import sys
 
-logger = getLogger('expeditious.monsen')
 
-def init():
-    _setup_logging()
+def main():
+    """ CLI entry point. """
+    args = _get_args()
+    monsen = Monsen(args.input)
+    monsen.trim(start=args.start, duration=args.duration, dst=args.file)
+    monsen.save_stats()
 
-def _setup_logging():
-    conf_location = path.abspath('log_conf.yaml')
-    with open(conf_location) as log_conf:
-        logging.config.dictConfig(yaml.load(log_conf))
 
 def _get_args():
-    parser = ArgumentParser(description='''Monsen will help you trim audio,
-        with fading up and down and normalizing.''')
+    parser = ArgumentParser(prog='monsen',
+        description='Monsen will help you trim audio, with fade up and down and normalizing.')
     parser.add_argument('input', help='The file to trim.')
-    parser.add_argument('-q', '--quiet', help="Don't print anything but errors to stdout.",
-                      action='store_false', default=False)
-    parser.add_argument('-f', '--file', help='Trimmed result will be saved in FILE. ' \
-        'Defaults to [input]_trimmed.flac')
-    parser.add_argument('-s', '--start', help='The starting point for the trim. Default: 0',
-                        type=float, default=0.0)
-    parser.add_argument('-d', '--duration', help='''The duration of the trim,
-                            ie. total length of the new audio. Default: 45''',
-                        type=float, default=45.0)
+    parser.add_argument('-s', '--start',
+        help='The starting point for the trim. Default: %(default)s',
+        type=float,
+        default=0.0)
+    parser.add_argument('-d', '--duration',
+        help='The new duration of the song. Default: %(default)s',
+        type=float,
+        default=45.0)
+    parser.add_argument('-f', '--file',
+        help='Trimmed result will be saved in FILE. Defaults to [input]_trimmed.flac')
     args = parser.parse_args()
     return args
 
-def run():
-    args = _get_args()
-    if args.quiet:
-        logger.setLevel(logging.ERROR)
-    logger.info('Monsen %s running.', __version__)
-    src_file = args.input
-    start_point = args.start
-    duration = args.duration
-    destination = trim_song(src_file, start_point, duration)
-    _save_stats(src_file, start_point, duration, destination)
 
-def _save_stats(src, start, duration, destination):
-    src_dir = path.dirname(src)
-    stat_dict = {
-        'src_file': path.basename(src),
-        'start_point': start,
-        'duration': duration,
-        'destination': path.relpath(destination, src_dir),
-    }
-    stats_filename = path.splitext(src)[0] + '.yaml'
-    with open(stats_filename, 'w') as stats_file:
-        yaml.dump(stat_dict, stats_file, default_flow_style=False)
-    logger.info('Trim options saved to %s', path.relpath(stats_filename))
+class Monsen(object):
 
-def trim_song(src, start, duration, dst=None):
-    dst = dst or path.splitext(src)[0] + '_trimmed.flac'
-    cmd = [
-        'sox', src, dst,
-        'trim', str(start), str(duration),
-        'gain', '-n', '-1',
-        'fade', 'h', '1.5', str(duration),
-    ]
-    try:
-        subprocess.check_call(cmd)
-    except Exception:
-        logger.exception('Something failed calling SoX.')
-        sys.exit(1)
-    logger.info('Trimmed result can be found at %s', path.relpath(dst))
-    return dst
+    def __init__(self, src_file):
+        self.src_file = src_file
+        self.report = {
+            '_version': 2,
+        }
 
-if __name__ == '__main__':
-    init()
-    run()
+
+    def trim(self, start, duration, dst=None):
+        dst = dst or path.splitext(self.src_file)[0] + '_trimmed.flac'
+        cmd = [
+            'sox', self.src_file, dst,
+            'trim', str(start), str(duration),
+            'gain', '-n', '-1',
+            'fade', 'h', '1.5', str(duration),
+        ]
+        try:
+            subprocess.check_call(cmd)
+        except Exception:
+            logging.exception('Calling sox failed, is it installed on your system? Args was %s',
+                ' '.join(cmd[1:]))
+            sys.exit(1)
+        print('Trimmed result can be found at %s' % path.relpath(dst))
+
+        self.report['sox_args'] = cmd
+        self.report['destination'] = dst
+        return dst
+
+
+    def save_stats(self):
+        src_dir = path.dirname(self.src_file)
+        self.report['src_file'] = path.basename(self.src_file)
+        self.report['destination'] = path.relpath(self.report['destination'], src_dir)
+        stats_filename = path.splitext(self.src_file)[0] + '.yaml'
+        with open(stats_filename, 'w') as stats_fh:
+            yaml.dump(self.report, stats_fh, default_flow_style=False)
+        print('Trim data saved to %s' % path.relpath(stats_filename))
