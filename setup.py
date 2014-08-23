@@ -11,6 +11,9 @@ setup(
     url='https://github.com/TelemarkAlpint/expeditious',
     description='Helpers for working with trimmed audio',
     py_modules=['monsen'],
+    install_requires=[
+        'pyyaml',
+    ],
     zip_safe=False,
     entry_points={
         'console_scripts': [
