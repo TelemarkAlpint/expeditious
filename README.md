@@ -1,7 +1,8 @@
 Expeditious
 ======
 
-Expeditious is a collection of tools for working with songs.
+Expeditious is a collection of tools for working with songs. The're basically just wrapping sox
+to provide consistent results for all of our songs and an easier interface for our needs.
 
 - **Monsen**: Takes in a music file, and a start point and duration, and creates a new file with
 the given duration, with fade up and fade down.
@@ -15,10 +16,22 @@ Installation and usage
 ----------------------
 
     $ pip install -e .
-    $ monsen mysong.flac --start 25 --duration 45
+    $ monsen mysong.flac --start 25
 
 The above will generate `mysong_trimmed.flac`, starting at 25 s into mysong, fading up, going
 for 45 seconds and then fade down.
+
+Eventually, assuming you have VirtualBox and Vagrant installed, you can just fire up a VM which has
+sox and the tools installed, by simply issuing:
+
+	$ vagrant up
+
+You can ssh into the machine with either `vagrant ssh` or ssh to `localhost` at port 2222. User/pw
+vagrant/Vagrant.
+
+The local directory `files` is shared with the VM, at `/home/vagrant/files`. So just cd in there,
+and use `monsen` to the dirty work. Upload the raw files and the resulting yaml and trimmed
+versions to the Dropbox, upload the trimmed version on the website for conversion. Done.
 
 Type `monsen -h` for help.
 

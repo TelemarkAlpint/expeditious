@@ -1,2 +1,5 @@
 *.pyc
 *.log
+files
+.vagrant
+*.egg-info
