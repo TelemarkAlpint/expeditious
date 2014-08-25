@@ -13,11 +13,13 @@ setup(
     py_modules=['monsen'],
     install_requires=[
         'pyyaml',
+        'requests',
     ],
     zip_safe=False,
     entry_points={
         'console_scripts': [
-            'monsen = monsen:main'
+            'monsen = monsen:main',
+            'nansen = nansen:main'
         ]
     }
 )
