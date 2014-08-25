@@ -65,10 +65,26 @@ def _get_args():
 class Monsen(object):
 
     def __init__(self, src_file):
+        self.sanity_check_input(src_file)
         self.src_file = src_file
         self.report = {
             '_version': 2,
         }
+
+
+    def sanity_check_input(self, source):
+        try:
+            output = subprocess.check_output(['sox', '--i', source])
+            for line in output.split('\n'):
+                if line.startswith('Sample Rate'):
+                    _, rate = line.split(':', 1)
+                    rate = int(rate.strip())
+                    if rate != 44100:
+                        raise Exception('Wrong input sample rate, was %d, expected 44100' % rate)
+        except Exception as e:
+            print('Input file is not 44,1kHz, or sox failed to read file, please fix!')
+            print('Error was: %s' % e)
+            sys.exit(1)
 
 
     def trim(self, start, duration, dst=None):
