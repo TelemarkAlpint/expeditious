@@ -24,8 +24,10 @@ def main():
     silence_file = generate_silence_file(temp_dir)
     urls = get_song_urls()
     files = fetch_songs(temp_dir, urls)
-    mp3 = merge_files(files, silence_file)
-    write_metadata(mp3, files)
+    wav = merge_files(files, silence_file)
+    mp3 = convert_to_mp3(wav)
+    write_metadata(mp3, urls)
+    os.remove(wav)
     print('Fullført. Den ferdige fila ligger her: %s' % mp3)
     shutil.rmtree(temp_dir)
 
@@ -85,18 +87,27 @@ def merge_files(files, silence_file):
     return target
 
 
+def convert_to_mp3(source):
+    dest = path.splitext(source)[0] + '.mp3'
+    subprocess.check_call(['lame', '-V2', '--vbr-new', '--tt', 'Mandagstrening', '--ta',
+        'NTNUI Telemark-Alpint', '--ty', str(datetime.now().year), '--tc',
+        'Generert %s' % datetime.now().strftime('%Y-%m-&d %H:%M'), '--tl', 'Best of I-bygget',
+        source, dest])
+    return dest
+
+
 def get_new_filename():
     datestr = datetime.now().strftime('%Y.%m.%d')
     suffix = get_current_month_name()
     return '%s-%s.wav' % (datestr, suffix)
 
 
-def write_metadata(filename, files):
+def write_metadata(filename, urls):
     target = path.splitext(filename)[0] + '.json'
     metadata = {
-        'last_updated': datetime.now().strftime('%Y-%m-%d %H:%M'),
-        'filename': os.path.split(filename)[1],
-        'songs': [path.split(song)[1] for song in files],
+        'created': datetime.now().strftime('%Y-%m-%d %H:%M'),
+        'filename': filename,
+        'songs': [{'filename': path.splitext(url)[0]} for url in urls],
     }
     with open(target, 'w') as json_file:
         json.dump(metadata, json_file, indent=2)
