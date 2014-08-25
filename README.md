@@ -39,3 +39,14 @@ Dependencies
 ------------
 
 [SoX](http://sox.sourceforge.net/).
+
+
+Recording audio?
+----------------
+
+If you're fetching a new song from somewhere, and you record with silence at the start and
+beginning, this can be trimmed with the following one-liner:
+
+    $ sox inputfile-raw.wav outputfile.wav silence 1 0.1 0.2% reverse silence 1 0.1 0.2% reverse
+
+Make sure you record in 44,1kHz, otherwise stuff will fail when you try to combine the songs later!
