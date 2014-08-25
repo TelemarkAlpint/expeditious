@@ -5,14 +5,11 @@ VAGRANTFILE_API_VERSION = "2"
 
 $provision_script = <<EOF
 echo "Installing deps..."
-apt-get install sox python-pip -y
+apt-get install sox python-pip lame -y
 pip install -e /vagrant
 EOF
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-  # All Vagrant configuration is done here. The most common configuration
-  # options are documented and commented below. For a complete reference,
-  # please see the online documentation at vagrantup.com.
 
   # Every Vagrant virtual environment requires a box to build off of.
   config.vm.box = "trusty64"
@@ -23,7 +20,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.synced_folder "files", "/home/vagrant/files"
 
-  ## Use all the defaults:
   config.vm.provision "shell", inline: $provision_script
 
 end
