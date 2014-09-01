@@ -97,9 +97,8 @@ def convert_to_mp3(source):
 
 
 def get_new_filename():
-    datestr = datetime.now().strftime('%Y.%m.%d')
-    suffix = get_current_month_name()
-    return '%s-%s.wav' % (datestr, suffix)
+    todays_date = datetime.now().strftime('%Y.%m.%d')
+    return '%s.wav' % todays_date
 
 
 def write_metadata(filename, urls):
@@ -111,9 +110,3 @@ def write_metadata(filename, urls):
     }
     with open(target, 'w') as json_file:
         json.dump(metadata, json_file, indent=2)
-
-
-def get_current_month_name():
-    months = ['januar', 'februar', 'mars', 'april', 'mai', 'juni', 'juli', 'august', 'september', 'oktober',
-              'november', 'desember']
-    return months[datetime.now().month - 1]
