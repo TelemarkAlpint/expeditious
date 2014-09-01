@@ -13,8 +13,26 @@ import shutil
 import subprocess
 import tempfile
 import json
+import pwd
 import sys
 import os
+
+# Perform sanity check that sox and lame is acessible
+current_user = pwd.getpwuid(os.getuid())[0]
+sox = 'sox' # Does not need to be compiled locally since it's available on stud
+lame = '/home/vagrant/local/bin/lame' if current_user == 'vagrant' else '/home/groups/telemark/local/bin/lame'
+try:
+    sox_version = subprocess.check_output([sox, '--version'])
+    print('Found sox: ' + ' '.join(sox_version.split()[1:]))
+except OSError:
+    print("Failed to find sox, make sure it's installed and on PATH, and try again")
+    sys.exit(1)
+try:
+    lame_version = subprocess.check_output([lame, '--version'])
+    print('Lame found: ' + lame_version.split('\n')[0])
+except OSError:
+    print("Failed to find lame, tried path '%s', make sure it's there and try again." % lame)
+    sys.exit(1)
 
 
 def main():
@@ -79,17 +97,14 @@ def merge_files(files, silence_file):
         command.append(silence_file)
     command.append(target)
     command.append('--show-progress')
-    try:
-        subprocess.check_call(command)
-    except Exception:
-        print('Klarte ikke slå sammen filer. Kommando: %s' % command)
-        sys.exit(1)
+    subprocess.check_call(command)
     return target
 
 
 def convert_to_mp3(source):
+    print('Converting merged file to mp3...')
     dest = path.splitext(source)[0] + '.mp3'
-    subprocess.check_call(['lame', '-V2', '--vbr-new', '--tt', 'Mandagstrening', '--ta',
+    subprocess.check_call([lame, '-V2', '--vbr-new', '--tt', 'Mandagstrening', '--ta',
         'NTNUI Telemark-Alpint', '--ty', str(datetime.now().year), '--tc',
         'Generert %s' % datetime.now().strftime('%Y-%m-&d %H:%M'), '--tl', 'Best of I-bygget',
         source, dest])
