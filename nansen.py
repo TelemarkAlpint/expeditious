@@ -45,8 +45,8 @@ def main():
     wav = merge_files(files, silence_file)
     mp3 = convert_to_mp3(wav)
     write_metadata(mp3, urls)
+    print('Done. Completed mp3 is here: %s' % mp3)
     os.remove(wav)
-    print('Fullført. Den ferdige fila ligger her: %s' % mp3)
     shutil.rmtree(temp_dir)
 
 
@@ -80,12 +80,12 @@ def get_song_urls():
     print('Henter sanger...')
     song_list = requests.get('http://ntnuita.no/musikk/top/list/').json()
     url_list = [song['filename'] + '.ogg' for song in song_list]
-    print('%d sanger funnet.' % len(url_list))
+    print('%d songs found.' % len(url_list))
     return url_list
 
 
 def merge_files(files, silence_file):
-    print('Slår sammen filer...')
+    print('Merging files...')
     target = get_new_filename()
     command = ['sox']
     for song_file in files:
@@ -117,9 +117,9 @@ def get_new_filename():
 
 
 def write_metadata(filename, urls):
+    """ Write file used to recreate the file, or see the songs it contains. """
     song_meta_filename = path.splitext(filename)[0] + '.json'
     creation_time = datetime.now().strftime('%Y-%m-%d %H:%M')
-    # The file used to recreate the file, or see songs it contains
     song_meta = {
         'created': creation_time,
         'filename': filename,
