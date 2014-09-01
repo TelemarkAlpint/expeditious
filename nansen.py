@@ -36,7 +36,10 @@ except OSError:
 
 
 def main():
-    """ CLI entrypoint. """
+    """ CLI entrypoint.
+
+    Returns a tuple of (generated_mp3, mp3_metadata) filenames.
+    """
     temp_dir = tempfile.mkdtemp()
     print('temp_dir is %s' % temp_dir)
     silence_file = generate_silence_file(temp_dir)
@@ -44,10 +47,11 @@ def main():
     files = fetch_songs(temp_dir, urls)
     wav = merge_files(files, silence_file)
     mp3 = convert_to_mp3(wav)
-    write_metadata(mp3, urls)
+    metadata = write_metadata(mp3, urls)
     print('Done. Completed mp3 is here: %s' % mp3)
     os.remove(wav)
     shutil.rmtree(temp_dir)
+    return mp3, metadata
 
 
 def generate_silence_file(temp_dir):
@@ -125,12 +129,10 @@ def write_metadata(filename, urls):
         'filename': filename,
         'songs': [{'filename': path.splitext(url)[0]} for url in urls],
     }
-    # The file used by the web site to find the latest song and update time
-    top_meta = {
-        'last_updated': creation_time,
-        'filename': filename,
-    }
     with open(song_meta_filename, 'w') as song_meta_fh:
         json.dump(song_meta, song_meta_fh, indent=2)
-    with open('top_meta.json', 'w') as top_meta_fh:
-        json.dump(top_meta, top_meta_fh, indent=2)
+    return song_meta_filename
+
+
+if __name__ == '__main__':
+    main()
