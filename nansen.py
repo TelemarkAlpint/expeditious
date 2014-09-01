@@ -82,7 +82,8 @@ def fetch_songs(temp_dir, song_urls):
 
 def get_song_urls():
     print('Henter sanger...')
-    song_list = requests.get('http://ntnuita.no/musikk/top/list/').json()
+    song_data = requests.get('http://ntnuita.no/musikk/top/list/').json()
+    song_list = song_data['songs']
     url_list = [song['filename'] + '.ogg' for song in song_list]
     print('%d songs found.' % len(url_list))
     return url_list
