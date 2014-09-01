@@ -1,5 +1,5 @@
 Expeditious
-======
+===========
 
 Expeditious is a collection of tools for working with songs. The're basically just wrapping sox
 to provide consistent results for all of our songs and an easier interface for our needs.
@@ -11,6 +11,19 @@ them all together before pushing to a remote server. This is planned to be incor
 slingsby so that it's handled automatically.
 
 Together these explorers keeps our music running on Monday evenings.
+
+This repo is cloned to `/home/groups/telemark/expeditious` and `update_top_song.py` is called to
+update the song as seen from slingsby. Note that there's a post-merge git hook in that repo that
+chmod's all files to g+w. Remember to re-create that hook if you re-create the repo!
+
+The hook looks like this:
+
+```
+#!/bin/bash
+
+chmod -R g+w *
+```
+
 
 Installation and usage
 ----------------------
@@ -34,6 +47,7 @@ and use `monsen` to the dirty work. Upload the raw files and the resulting yaml 
 versions to the Dropbox, upload the trimmed version on the website for conversion. Done.
 
 Type `monsen -h` for help.
+
 
 Dependencies
 ------------
