@@ -26,6 +26,7 @@ def move_files(mp3, metadata):
 
 
 def update_top_meta(new_song_name):
+    print('Updating top_meta.json...')
     creation_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
     top_meta = {
         'last_updated': creation_time,
