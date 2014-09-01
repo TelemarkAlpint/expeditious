@@ -102,11 +102,20 @@ def get_new_filename():
 
 
 def write_metadata(filename, urls):
-    target = path.splitext(filename)[0] + '.json'
-    metadata = {
-        'created': datetime.now().strftime('%Y-%m-%d %H:%M'),
+    song_meta_filename = path.splitext(filename)[0] + '.json'
+    creation_time = datetime.now().strftime('%Y-%m-%d %H:%M')
+    # The file used to recreate the file, or see songs it contains
+    song_meta = {
+        'created': creation_time,
         'filename': filename,
         'songs': [{'filename': path.splitext(url)[0]} for url in urls],
     }
-    with open(target, 'w') as json_file:
-        json.dump(metadata, json_file, indent=2)
+    # The file used by the web site to find the latest song and update time
+    top_meta = {
+        'last_updated': creation_time,
+        'filename': filename,
+    }
+    with open(song_meta_filename, 'w') as song_meta_fh:
+        json.dump(song_meta, song_meta_fh, indent=2)
+    with open('top_meta.json', 'w') as top_meta_fh:
+        json.dump(top_meta, top_meta_fh, indent=2)
