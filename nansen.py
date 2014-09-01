@@ -101,7 +101,6 @@ def merge_files(files, silence_file):
             command.append(song_file.encode('latin-1'))
         command.append(silence_file)
     command.append(target)
-    command.append('--show-progress')
     subprocess.check_call(command)
     return target
 
