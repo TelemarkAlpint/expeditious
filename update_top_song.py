@@ -22,7 +22,6 @@ def move_files(mp3, metadata):
     os.chmod(os.path.join(target_dir, mp3), 0664)
     shutil.move(metadata, target_dir)
     os.chmod(os.path.join(target_dir, metadata), 0664)
-    update_top_meta(mp3)
 
 
 def update_top_meta(new_song_name):
