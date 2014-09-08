@@ -2,6 +2,8 @@
 
 # Laster ned kildekoden til lame og kompilere lokalt til /home/groups/telemark/local
 
+set -e
+
 if [[ $(whoami) == "vagrant" ]]; then
     echo "Running in vagrant!"
     INSTALL_LOC=/home/vagrant/local
@@ -11,7 +13,7 @@ else
 fi
 
 source="http://downloads.sourceforge.net/project/lame/lame/3.99/lame-3.99.5.tar.gz"
-wget $source
+wget $source -nv
 tar xf lame-3.99.5.tar.gz
 cd lame-3.99.5
 ./configure --prefix=$INSTALL_LOC
