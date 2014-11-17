@@ -6,7 +6,7 @@ VAGRANTFILE_API_VERSION = "2"
 $provision_script = <<EOF
 set -e
 echo "Installing deps..."
-apt-get install sox python-pip -y
+apt-get install -y sox python-pip normalize-audio
 sudo -u vagrant /vagrant/compile-and-install-lame.sh
 pip install -e /vagrant
 EOF

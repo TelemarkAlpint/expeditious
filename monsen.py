@@ -87,6 +87,21 @@ class Monsen(object):
             sys.exit(1)
 
 
+    def _run_command(self, command):
+        """ Runs a shell command and prints any errors that may have occurred before terminating. """
+        try:
+            subprocess.check_call(command)
+        except Exception:
+            logging.exception('Calling %s failed, is it installed on your system? Arguments were %s',
+                command[0], ' '.join(cmd[1:]))
+            sys.exit(1)
+
+
+    def normalize_audio(self, input_file):
+        cmd = ['normalize-audio', '-a', 0.99, input_file]
+        self._run_command(cmd)
+
+
     def trim(self, start, duration, dst=None):
         dst = dst or path.splitext(self.src_file)[0] + '_trimmed.flac'
         cmd = [
@@ -95,14 +110,9 @@ class Monsen(object):
             'gain', '-n', '-1',
             'fade', 'h', '1.5', str(duration),
         ]
-        try:
-            subprocess.check_call(cmd)
-        except Exception:
-            logging.exception('Calling sox failed, is it installed on your system? Args was %s',
-                ' '.join(cmd[1:]))
-            sys.exit(1)
+        self.normalize_audio(dst)
+        self._run_command(cmd)
         print('Trimmed result can be found at %s' % path.relpath(dst))
-
         self.report['sox_args'] = cmd
         self.report['destination'] = dst
         return dst
