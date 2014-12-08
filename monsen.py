@@ -35,6 +35,9 @@ import subprocess
 import yaml
 import sys
 
+# Used to normalize audio based on perceived loudness levels, not peak amplitudes
+_rms_target_level = 0.39
+
 
 def main():
     """ CLI entry point. """
@@ -97,8 +100,8 @@ class Monsen(object):
             sys.exit(1)
 
 
-    def normalize_audio(self, input_file):
-        cmd = ['normalize-audio', '-a', 0.99, input_file]
+    def _normalize_audio(self, input_file):
+        cmd = ['normalize-audio', '-a', str(_rms_target_level), input_file, '--no-progress']
         self._run_command(cmd)
 
 
