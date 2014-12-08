@@ -110,7 +110,7 @@ def convert_to_mp3(source):
     dest = path.splitext(source)[0] + '.mp3'
     subprocess.check_call([lame, '-V2', '--vbr-new', '--tt', 'Mandagstrening', '--ta',
         'NTNUI Telemark-Alpint', '--ty', str(datetime.now().year), '--tc',
-        'Generert %s' % datetime.now().strftime('%Y-%m-&d %H:%M'), '--tl', 'Best of I-bygget',
+        'Generert %s' % datetime.now().strftime('%Y-%m-%d %H:%M'), '--tl', 'Best of I-bygget',
         source, dest])
     return dest
 
