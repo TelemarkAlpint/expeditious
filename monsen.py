@@ -92,11 +92,12 @@ class Monsen(object):
 
     def _run_command(self, command):
         """ Runs a shell command and prints any errors that may have occurred before terminating. """
+        print('Running %s...' % command[0])
         try:
             subprocess.check_call(command)
         except Exception:
             logging.exception('Calling %s failed, is it installed on your system? Arguments were %s',
-                command[0], ' '.join(cmd[1:]))
+                command[0], ' '.join(command[1:]))
             sys.exit(1)
 
 
