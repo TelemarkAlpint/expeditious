@@ -7,7 +7,8 @@ $provision_script = <<EOF
 set -e
 echo "Installing deps..."
 apt-get install -y sox python-pip normalize-audio
-sudo -u vagrant /vagrant/compile-and-install-lame.sh
+which lame || sudo -u vagrant /vagrant/compile-and-install-lame.sh
+which trim-silence || ln -s /vagrant/trim-silence /usr/bin/trim-silence
 pip install -e /vagrant
 EOF
 

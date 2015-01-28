@@ -1,0 +1,24 @@
+#!/bin/sh
+
+# Fail script if any single line fails
+set -e
+
+if [ $# -ne 1 ]; then
+    echo "Usage: trim-silence <raw-audio-file>"
+    echo
+    echo "The script will trim silence from both ends of the audio,"
+    echo "and replace the original file with a FLAC-encoded trimmed version"
+    exit 1
+fi
+
+# Generate a new filename for the trimmed file
+new_filename=$(echo $1 | sed "s/\.wav/-nosilence.wav/")
+
+# Trim silence
+sox $1 $new_filename silence 1 0.1 0.2% reverse silence 1 0.1 0.2% reverse
+
+# Encode to FLAC
+flac -8 -f $new_filename
+
+# Delete the trimmed WAV
+rm $new_filename

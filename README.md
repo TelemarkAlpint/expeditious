@@ -59,8 +59,10 @@ Recording audio?
 ----------------
 
 If you're fetching a new song from somewhere, and you record with silence at the start and
-beginning, this can be trimmed with the following one-liner:
+beginning, you can utilize the small `trim-silence` script in this repo. From inside vagrant:
 
-    $ sox inputfile-raw.wav outputfile.wav silence 1 0.1 0.2% reverse silence 1 0.1 0.2% reverse
+    $ trim-silence <inputfile>
+
+This will trim away silence at both the start and the end, and encode the result as FLAC.
 
 Make sure you record in 44,1kHz, otherwise stuff will fail when you try to combine the songs later!
